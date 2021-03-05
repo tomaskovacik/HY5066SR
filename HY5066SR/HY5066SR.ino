@@ -26,14 +26,14 @@
 #define BK3266SR_CMD_TYPE_SEARCH_REMOTE_ADDRESS  0x0D  //  Bluetooth address searched by the transmitter
 
 #define BK3266SR_CMD_PAIRING_STATE  0x01  //  Enter the pairing state MCU-->BT  
-#define BK3266SR_CMD_CONNECTED  0x02  //  Connect back to the last device MCU-->BT  
-#define BK3266SR_CMD_DISCONNECTED 0x03  //  Disconnect  MCU-->BT  
+#define BK3266SR_CMD_CONNECT_TO_LAST_DEVICE  0x02  //  Connect back to the last device MCU-->BT  
+#define BK3266SR_CMD_DISCONNECT 0x03  //  Disconnect  MCU-->BT  
 #define BK3266SR_CMD_PICKUP_CALL  0x04  //  Answer the phone  MCU-->BT  
 #define BK3266SR_CMD_REJECT_CALL 0x05  //  Reject the call MCU-->BT  
 #define BK3266SR_CMD_HANGUP_CALL 0x06  //  hang up the phone MCU-->BT  
 #define BK3266SR_CMD_REDIAL_LAST 0x07 //  Call back the last outgoing call  MCU-->BT  
-#define BK3266SR_CMD_VOLUME_UP 0x08  //  Voice+  MCU-->BT  
-#define BK3266SR_CMD_VOLUME_DOWN 0x09  //  sound-  MCU-->BT  
+#define BK3266SR_CMD_GET_CURRENT_VOLUMEUME_UP 0x08  //  Voice+  MCU-->BT  
+#define BK3266SR_CMD_GET_CURRENT_VOLUMEUME_DOWN 0x09  //  sound-  MCU-->BT  
 #define BK3266SR_CMD_CLEAR_MEMORY 0x0A  //  Clear the pairing list  MCU-->BT  
 #define BK3266SR_CMD_PLAYPAUSE  0x0B  //  Pause playback  MCU-->BT  
 #define BK3266SR_CMD_STOP 0x0C  //  Keep  MCU-->BT  
@@ -44,44 +44,44 @@
 #define BK3266SR_CMD_DEVICE_ADDR  0x11  //  Query Bluetooth address MCU-->BT  
 #define BK3266SR_CMD_DEVICE_NAME  0x12  //  Query Bluetooth name  MCU-->BT  
 #define BK3266SR_CMD_PHONE_NAME 0x13  //  Query the name of the connected device, the link is successful and the command is valid MCU-->BT  
-#define BK3266SR_CMD_VERSION  0x14  //  Query software version  MCU-->BT  
-#define BK3266SR_CMD_ACL  0x15  //  Check if acl is linked  MCU-->BT  
-#define BK3266SR_CMD_CALLSTATUS 0x16  //  Check call status MCU-->BT  
-#define BK3266SR_CMD_SONGSTATUS 0x17  //  Check the status of the song  MCU-->BT  
+#define BK3266SR_CMD_GET_SW_VERSION  0x14  //  Query software version  MCU-->BT  
+#define BK3266SR_CMD_GET_ACL_STATUS  0x15  //  Check if acl is linked  MCU-->BT  
+#define BK3266SR_CMD_CALL_STATUS 0x16  //  Check call status MCU-->BT  
+#define BK3266SR_CMD_SONG_STATUS 0x17  //  Check the status of the song  MCU-->BT  
 //#define BK3266SR_CMD_V0 0x18  //  OPEN test 1K signal MCU-->BT
 //#define BK3266SR_CMD_VS 0x19  //  STOP test 1K signal MCU-->BT
-#define BK3266SR_CMD_VOL  0x1A  //  Query current volume  MCU-->BT  
+#define BK3266SR_CMD_GET_CURRENT_VOLUME  0x1A  //  Query current volume  MCU-->BT  
 #define BK3266SR_CMD_AUX_SEARCH 0x1B  //  Launch mode search device MCU-->BT  cmd 0x05
-#define BK3266SR_CMD_AUX_DIS  0x1C  //  Launch mode is off  MCU-->BT  cmd 0x05
+#define BK3266SR_CMD_AUX_DISABLE  0x1C  //  Launch mode is off  MCU-->BT  cmd 0x05
 //  Equipment index【0-6】  //  Launch mode to connect back to the device MCU-->BT  cmd 0x05
 #define BK3266SR_CMD_RESET  0x1D  //  Reset MCU-->BT  Confirm the mode and check the IO port level before sending the command
 //#define BK3266SR_CMD_TESTMODE 0x1E  //  Reconnect to the specified address 0x888888888888 MCU-->BT  For test mode
-#define BK3266SR_CMD_IDLEMODE 0x1F  //  Enter idle mode power consumption 4MA MCU-->BT  CMD 0x01
+#define BK3266SR_CMD_ENTER_IDLE_MODE 0x1F  //  Enter idle mode power consumption 4MA MCU-->BT  CMD 0x01
 //[CMD 0x0B]  DATA[0-6] //  The speaker address that MCU sends to BT needs to be linked MCU-->BT  For example, 52 42 23 09 0B 3DAB55FA58FC 9F 234252
 #define BK3266SR_CMD_MUTE 0x20  //  Mute emission mode  MCU-->BT  
 #define BK3266SR_CMD_UNMUTE 0x21  //  Transmit mode is not muted  MCU-->BT  
 #define BK3266SR_CMD_CLEAR_KEY  0x22  //  CLEAR KEY MCU-->BT  
 #define BK3266SR_CMD_REMOTE_ADDR  0x23  //  Query the address of the Bluetooth connection MCU-->BT  
-#define BK3266SR_CMD_TRANSMITMODE 0x24  //  Enter launch mode MCU-->BT  The machine will automatically restart after sending the command (for the case of automatic startup)
-#define BK3266SR_CMD_RECEIVEMODE  0x25  //  Enter receive mode  MCU-->BT  If it is already in the receiving mode, it returns to the receiving state, and the same is true for the transmitting mode
-#define BK3266SR_CMD_BT_NAME  0x29  //  Change Bluetooth name MCU-->BT  
+#define BK3266SR_CMD_ENTER_TRANSMIT_MODE 0x24  //  Enter launch mode MCU-->BT  The machine will automatically restart after sending the command (for the case of automatic startup)
+#define BK3266SR_CMD_ENTER_RECEIVE_MODE  0x25  //  Enter receive mode  MCU-->BT  If it is already in the receiving mode, it returns to the receiving state, and the same is true for the transmitting mode
+#define BK3266SR_CMD_SET_BLUETOOTH_NAME  0x29  //  Change Bluetooth name MCU-->BT  
 
 #define BK3266SR_STATUS_OK 0x61  //  Answer OK
-#define BK3266SR_STATUS_MA 0x62  //  time out
-#define BK3266SR_STATUS_MB 0x63  //  Play
+#define BK3266SR_STATUS_TIMEOUT 0x62  //  time out
+#define BK3266SR_STATUS_PLAY 0x63  //  Play
 #define BK3266SR_STATUS_ON 0x64  //  Boot up
-#define BK3266SR_STATUS_II 0x65  //  Link successfully
-#define BK3266SR_STATUS_C0 0x66  //  ACL not connected query returns
-#define BK3266SR_STATUS_C1 0x67  //  ACL connected query returns
-#define BK3266SR_STATUS_M0 0x68  //  Not connected query returns
-#define BK3266SR_STATUS_M1 0x69  //  HFP connected query returns
+#define BK3266SR_STATUS_LINK_CONNECTED 0x65  //  Link successfully
+#define BK3266SR_STATUS_ACL_NOT_CONNECTED 0x66  //  ACL not connected query returns
+#define BK3266SR_STATUS_ACL_CONNECTED 0x67  //  ACL connected query returns
+#define BK3266SR_STATUS_NOT_CONNECTED 0x68  //  Not connected query returns
+#define BK3266SR_STATUS_HFP_CONNECTED 0x69  //  HFP connected query returns
 #define BK3266SR_STATUS_M2 0x70  //  Call back
 #define BK3266SR_STATUS_M3 0x71  //  Call back
 #define BK3266SR_STATUS_M4 0x72  //  Query returns during the call
-#define BK3266SR_STATUS_IC 0x73  //  Incoming call 
+#define BK3266SR_STATUS_INCOMMING_CALL 0x73  //  Incoming call 
 #define BK3266SR_STATUS_ID 0x74  //  Call 
 #define BK3266SR_STATUS_AUX 0x75  //  Launch mode
-#define BK3266SR_STATUS_BT 0x76  //  Bluetooth mode
+#define BK3266SR_STATUS_BLUETOOTH_MODE 0x76  //  Bluetooth mode
 #define BK3266SR_STATUS_END 0x77 //  End of launch search
 #define BK3266SR_STATUS_WC 0x78  //  Launch paired successfully
 #define BK3266SR_STATUS_WD 0x79  //  Launch disconnect
@@ -99,7 +99,7 @@
 #define BK3266SR_RESPONCE_TB 0x06  //  Transmit data 
 #define BK3266SR_RESPONCE_ADDR 0x07  //  Local Bluetooth address 
 #define BK3266SR_RESPONCE_NAME 0x08  //  Local Bluetooth name 
-#define BK3266SR_RESPONCE_PHONENAME 0x09  //  Connected device name 
+#define BK3266SR_RESPONCE_PHONE_NAME 0x09  //  Connected device name 
 #define BK3266SR_RESPONCE_VERSION 0x0A  //  Software version 
 #define BK3266SR_RESPONCE_AUTADD 0x0B  //   
 #define BK3266SR_RESPONCE_REMOTEADDR 0x0C  //  The transmitter connects to the Bluetooth address 
@@ -140,10 +140,10 @@ uint8_t pairingState() {
   return senddata(BK3266SR_CMD_PAIRING_STATE);
 }
 uint8_t connect() {
-  return senddata(BK3266SR_CMD_CONNECTED);
+  return senddata(BK3266SR_CMD_CONNECT_TO_LAST_DEVICE);
 }
 uint8_t disconnect() {
-  return senddata(BK3266SR_CMD_DISCONNECTED);
+  return senddata(BK3266SR_CMD_DISCONNECT);
 }
 uint8_t pickupCall() {
   return senddata(BK3266SR_CMD_PICKUP_CALL);
@@ -158,10 +158,10 @@ uint8_t redialLastCall() {
   return senddata(BK3266SR_CMD_REDIAL_LAST);
 }
 uint8_t volumeUp() {
-  return senddata(BK3266SR_CMD_VOLUME_UP);
+  return senddata(BK3266SR_CMD_GET_CURRENT_VOLUMEUME_UP);
 }
 uint8_t volumeDown() {
-  return senddata(BK3266SR_CMD_VOLUME_DOWN);
+  return senddata(BK3266SR_CMD_GET_CURRENT_VOLUMEUME_DOWN);
 }
 uint8_t clearMemory() {
   return senddata(BK3266SR_CMD_CLEAR_MEMORY);
@@ -190,35 +190,35 @@ uint8_t getModuleName() {
 uint8_t getModuleAddr() {
   return senddata(BK3266SR_CMD_DEVICE_ADDR);
 }
-uint8_t phoneName() {
+uint8_t getPhoneName() {
   return senddata(BK3266SR_CMD_PHONE_NAME);
 }
 uint8_t version() {
-  return senddata(BK3266SR_CMD_VERSION);
+  return senddata(BK3266SR_CMD_GET_SW_VERSION);
 }
 uint8_t isAclLinked() {
-  return senddata(BK3266SR_CMD_ACL);
+  return senddata(BK3266SR_CMD_GET_ACL_STATUS);
 }
 uint8_t callStatus() {
-  return senddata(BK3266SR_CMD_CALLSTATUS);
+  return senddata(BK3266SR_CMD_CALL_STATUS);
 }
 uint8_t songStatus() {
-  return senddata(BK3266SR_CMD_SONGSTATUS);
+  return senddata(BK3266SR_CMD_SONG_STATUS);
 }
 uint8_t getVolume() {
-  return senddata(BK3266SR_CMD_VOL);
+  return senddata(BK3266SR_CMD_GET_CURRENT_VOLUME);
 }
 uint8_t auxSearch() {
   return senddata(BK3266SR_CMD_AUX_SEARCH);
 }
 uint8_t auxDisable() {
-  return senddata(BK3266SR_CMD_AUX_DIS);
+  return senddata(BK3266SR_CMD_AUX_DISABLE);
 }
 uint8_t reset() {
   return senddata(BK3266SR_CMD_RESET);
 }
 uint8_t idleMode() {
-  return senddata(BK3266SR_CMD_IDLEMODE);
+  return senddata(BK3266SR_CMD_ENTER_IDLE_MODE);
 }
 uint8_t mute() {
   return senddata(BK3266SR_CMD_MUTE);
@@ -233,10 +233,10 @@ uint8_t remoteAddr() {
   return senddata(BK3266SR_CMD_REMOTE_ADDR);
 }
 uint8_t transmit() {
-  return senddata(BK3266SR_CMD_TRANSMITMODE);
+  return senddata(BK3266SR_CMD_ENTER_TRANSMIT_MODE);
 }
 uint8_t receiver() {
-  return senddata(BK3266SR_CMD_RECEIVEMODE);
+  return senddata(BK3266SR_CMD_ENTER_RECEIVE_MODE);
 }
 uint8_t setName(uint8_t data[]) {
   return senddata(data);
@@ -262,7 +262,7 @@ void loop() {
     switch (c) {
       case '1': transmit(); break;
       case '2': receiver(); break;
-      case '3': phoneName(); break;
+      case '3': getPhoneName(); break;
       case '4': playpause(); break;
       case '5': search(); break;
       case '6': getModuleName(); break;
@@ -296,9 +296,9 @@ void loop() {
       case 'L': remoteAddr(); break;
       case 'm': {
           uint8_t name[32];
-          name[0] = 1; //0th=packetsize,1st=BK3266SR_CMD_TYPE_SEND_DATA, 2nd = BK3266SR_CMD_BT_NAME, 3th and up -> name
+          name[0] = 1; //0th=packetsize,1st=BK3266SR_CMD_TYPE_SEND_DATA, 2nd = BK3266SR_CMD_SET_BLUETOOTH_NAME, 3th and up -> name
           name[name[0]++] = BK3266SR_CMD_TYPE_SEND_DATA;
-          name[name[0]++] = BK3266SR_CMD_BT_NAME;
+          name[name[0]++] = BK3266SR_CMD_SET_BLUETOOTH_NAME;
           uint8_t g;
           while (name[0] == 3) {
             while (Serial.available()) {
@@ -328,7 +328,7 @@ void loop() {
           uint8_t name[15]; //packetsize,BK3266SR_CMD_TYPE_OUTGOING_NUMBER,+421123456789
           name[0] = 1; 
           name[name[0]++] = BK3266SR_CMD_TYPE_OUTGOING_NUMBER;
-          //name[name[0]++] = BK3266SR_CMD_BT_NAME;
+          //name[name[0]++] = BK3266SR_CMD_SET_BLUETOOTH_NAME;
           uint8_t g;
           while (name[0] == 2) {
             while (Serial.available()) {
@@ -477,7 +477,7 @@ uint8_t btCheckResponce() {
                       Serial.println(decodeReceivedData(data[2]));
                     }
                     break;
-                  case BK3266SR_RESPONCE_PHONENAME:
+                  case BK3266SR_RESPONCE_PHONE_NAME:
                     {
                       Serial.print("Phone name");
                       for (uint8_t i = 1; i < packetbyte - 1; i++) {
@@ -570,7 +570,7 @@ String decodeResponce(uint8_t RSP) {
     case BK3266SR_RESPONCE_TB: return F("Transmit data");
     case BK3266SR_RESPONCE_ADDR: return F("Local Bluetooth address");
     case BK3266SR_RESPONCE_NAME: return F("Local Bluetooth name");
-    case BK3266SR_RESPONCE_PHONENAME: return F("onnected device name");
+    case BK3266SR_RESPONCE_PHONE_NAME: return F("Connected device name");
     case BK3266SR_RESPONCE_VERSION: return F("Software version");
     case BK3266SR_RESPONCE_AUTADD: return F("AUTADD");
     case BK3266SR_RESPONCE_REMOTEADDR: return F("The transmitter connects to the Bluetooth address");
@@ -581,21 +581,21 @@ String decodeResponce(uint8_t RSP) {
 String decodeReceivedData(uint8_t data) {
   switch (data) {
     case BK3266SR_STATUS_OK: return F("Answer OK");
-    case BK3266SR_STATUS_MA: return F("time out");
-    case BK3266SR_STATUS_MB: return F("Play");
+    case BK3266SR_STATUS_TIMEOUT: return F("time out");
+    case BK3266SR_STATUS_PLAY: return F("Play");
     case BK3266SR_STATUS_ON: return F("Boot up");
-    case BK3266SR_STATUS_II: return F("Link successfully");
-    case BK3266SR_STATUS_C0: return F("ACL not connected query returns");
-    case BK3266SR_STATUS_C1: return F("ACL connected query returns");
-    case BK3266SR_STATUS_M0: return F("Not connected query returns");
-    case BK3266SR_STATUS_M1: return F("HFP connected query returns");
-    case BK3266SR_STATUS_M2: return F("Call back");
-    case BK3266SR_STATUS_M3: return F("Call back");
+    case BK3266SR_STATUS_LINK_CONNECTED: return F("Link successfully");
+    case BK3266SR_STATUS_ACL_NOT_CONNECTED: return F("ACL not connected");
+    case BK3266SR_STATUS_ACL_CONNECTED: return F("ACL connected");
+    case BK3266SR_STATUS_NOT_CONNECTED: return F("Not connected");
+    case BK3266SR_STATUS_HFP_CONNECTED: return F("HFP connected");
+    case BK3266SR_STATUS_M2: return F("Call back M2");
+    case BK3266SR_STATUS_M3: return F("Call back M3");
     case BK3266SR_STATUS_M4: return F("Query returns during the call");
-    case BK3266SR_STATUS_IC: return F("Incoming call");
+    case BK3266SR_STATUS_INCOMMING_CALL: return F("Incoming call");
     case BK3266SR_STATUS_ID: return F("Call");
     case BK3266SR_STATUS_AUX: return F("Launch mode");
-    case BK3266SR_STATUS_BT: return F("Bluetooth mode");
+    case BK3266SR_STATUS_BLUETOOTH_MODE: return F("Bluetooth mode");
     case BK3266SR_STATUS_END: return F("End of launch search");
     case BK3266SR_STATUS_WC: return F("Launch paired successfully");
     case BK3266SR_STATUS_WD: return F("Launch disconnect");
@@ -632,14 +632,14 @@ String decodeCmdType(uint8_t cmd) {
 String decodeCmd(uint8_t cmd) {
   switch (cmd) {
     case BK3266SR_CMD_PAIRING_STATE: return F("Enter the pairing state");
-    case BK3266SR_CMD_CONNECTED: return F("Connect back to the last device");
-    case BK3266SR_CMD_DISCONNECTED: return F("Disconnect");
+    case BK3266SR_CMD_CONNECT_TO_LAST_DEVICE: return F("Connect back to the last device");
+    case BK3266SR_CMD_DISCONNECT: return F("Disconnect");
     case BK3266SR_CMD_PICKUP_CALL: return F("Answer the call");
     case BK3266SR_CMD_REJECT_CALL: return F("Reject the call");
     case BK3266SR_CMD_HANGUP_CALL: return F("hang up the phone");
     case BK3266SR_CMD_REDIAL_LAST: return F("Call back the last outgoing call");
-    case BK3266SR_CMD_VOLUME_UP: return F("Vol+");
-    case BK3266SR_CMD_VOLUME_DOWN: return F("Vol-");
+    case BK3266SR_CMD_GET_CURRENT_VOLUMEUME_UP: return F("Vol+");
+    case BK3266SR_CMD_GET_CURRENT_VOLUMEUME_DOWN: return F("Vol-");
     case BK3266SR_CMD_CLEAR_MEMORY: return F("Clear the pairing list");
     case BK3266SR_CMD_PLAYPAUSE: return F("Pause playback");
     case BK3266SR_CMD_STOP: return F("Stop");
@@ -650,26 +650,26 @@ String decodeCmd(uint8_t cmd) {
     case BK3266SR_CMD_DEVICE_ADDR: return F("Query Bluetooth address");
     case BK3266SR_CMD_DEVICE_NAME: return F("Query Bluetooth name");
     case BK3266SR_CMD_PHONE_NAME: return F("Query the name of the connected device, the link is successful and the command is valid");
-    case BK3266SR_CMD_VERSION: return F("Query software version");
-    case BK3266SR_CMD_ACL: return F("Check if acl is linked");
-    case BK3266SR_CMD_CALLSTATUS: return F("Check call status");
-    case BK3266SR_CMD_SONGSTATUS: return F("Check the status of the song");
+    case BK3266SR_CMD_GET_SW_VERSION: return F("Query software version");
+    case BK3266SR_CMD_GET_ACL_STATUS: return F("Check if acl is linked");
+    case BK3266SR_CMD_CALL_STATUS: return F("Check call status");
+    case BK3266SR_CMD_SONG_STATUS: return F("Check the status of the song");
     //case BK3266SR_CMD_V0: return F("OPEN test 1K signal");
     //case BK3266SR_CMD_VS: return F("STOP test 1K signal");
-    case BK3266SR_CMD_VOL: return F("Query current volume");
+    case BK3266SR_CMD_GET_CURRENT_VOLUME: return F("Query current volume");
     case BK3266SR_CMD_AUX_SEARCH: return F(" Launch mode search device");// MCU-- > BT  cmd 0x05
-    case BK3266SR_CMD_AUX_DIS: return F("Launch mode is off");//MCU-->BT  cmd 0x05
+    case BK3266SR_CMD_AUX_DISABLE: return F("Launch mode is off");//MCU-->BT  cmd 0x05
     //  Equipment index【0-6】  //  Launch mode to connect back to the device MCU-->BT  cmd 0x05
     case BK3266SR_CMD_RESET: return F("Reset");// MCU-->BT  Confirm the mode and check the IO port level before sending the command
     //case BK3266SR_CMD_TESTMODE: return F("Reconnect to the specified address");// 0x888888888888 MCU-->BT  For test mode
-    case BK3266SR_CMD_IDLEMODE: return F("Enter idle mode power consumption 4MA");// MCU-->BT  CMD 0x01
+    case BK3266SR_CMD_ENTER_IDLE_MODE: return F("Enter idle mode power consumption 4MA");// MCU-->BT  CMD 0x01
     //[CMD 0x0B]  DATA[0-6] //  The speaker address that MCU sends to BT needs to be linked MCU-->BT  For example, 52 42 23 09 0B 3DAB55FA58FC 9F 234252
     case BK3266SR_CMD_MUTE: return F("Mute emission mode");
     case BK3266SR_CMD_UNMUTE: return F("Transmit mode is not muted");
     case BK3266SR_CMD_CLEAR_KEY: return F("CLEAR KEY");
     case BK3266SR_CMD_REMOTE_ADDR: return F("Query the address of the Bluetooth connection");
-    case BK3266SR_CMD_TRANSMITMODE: return F("Enter launch mode");
-    case BK3266SR_CMD_RECEIVEMODE: return F("Enter receive mode");
-    case BK3266SR_CMD_BT_NAME: return F("Change Bluetooth name");
+    case BK3266SR_CMD_ENTER_TRANSMIT_MODE: return F("Enter launch mode");
+    case BK3266SR_CMD_ENTER_RECEIVE_MODE: return F("Enter receive mode");
+    case BK3266SR_CMD_SET_BLUETOOTH_NAME: return F("Change Bluetooth name");
   }
 }
