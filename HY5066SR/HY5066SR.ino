@@ -278,6 +278,7 @@ void loop() {
   if (Serial.available()) {      // If anything comes in Serial (USB),
     char c = Serial.read();
     switch (c) {
+      case 'w': printHelp();
       case '1': transmit(); break;
       case '2': receiver(); break;
       case '3': getPhoneName(); break;
@@ -328,14 +329,14 @@ void loop() {
               name[name[0]++] = g;
               Serial.write(g);
             }
-            if (name[0] == 2) Serial.println("Enter name:");
+            if (name[0] == 2) Serial.println(F("Enter name:"));
           }
           for (uint8_t i = 0; i < name[0]; i++) {
             if (DEBUG) {
               if (i < 3) {
-                Serial.print(name[i], HEX); Serial.print("|");
+                Serial.print(name[i], HEX); Serial.print(F("|"));
               } else {
-                Serial.write(name[i]); Serial.print("|");
+                Serial.write(name[i]); Serial.print(F("|"));
               }
             }
           }
@@ -358,7 +359,7 @@ void loop() {
               name[name[0]++] = g;
               Serial.write(g);
             }
-            if (name[0] == 1) Serial.println("Enter number:");
+            if (name[0] == 1) Serial.println(F("Enter number:"));
           }
           for (uint8_t i = 0; i < name[0]; i++) {
             if (DEBUG) {
@@ -464,7 +465,7 @@ uint8_t btCheckResponce() {
             //            }
 
             if (crc == data[packetbyte - 1]) {
-              Serial.println(" [crc OK]");
+              Serial.println(F(" [crc OK]"));
               if (DEBUG) Serial.println(decodeResponce(data[1]));
               if (DEBUG)
                 switch (data[1]) {
@@ -484,12 +485,16 @@ uint8_t btCheckResponce() {
                   case BK3266SR_CMD_TYPE_FOUND_DEVICE: //BK3266SR_RESPONCE_TB:
                     {
                       if (DEBUG) { //Found devices: [0] signal: 197 addr: [8D:64:CB:FA:58:FC] KOVOTEST
-                        Serial.print("Found devices: ");
-                        Serial.print("["); Serial.print(data[3],DEC); Serial.print("] ");//device index
-                        Serial.print("signal: "); Serial.print(data[2]); // signal strength
-                        Serial.print(" addr: ["); Serial.print(data[4], HEX); Serial.print(":"); Serial.print(data[5], HEX); Serial.print(":"); Serial.print(data[6], HEX); Serial.print(":"); Serial.print(data[7], HEX); Serial.print(":"); Serial.print(data[8], HEX); Serial.print(":"); Serial.print(data[9], HEX);Serial.print("] ");
+                        Serial.print(F("Found devices:  [")); Serial.print(data[3],DEC); Serial.print(F("] "));//device index
                         for (uint8_t i = 10; i < packetbyte - 1; i++) {
                           Serial.write(data[i]);
+                        }
+                        
+                        Serial.print(F(" Signal level: ")); Serial.print(data[2]); // signal strength
+                        Serial.print(F(" addr: ["));
+                        for (uint8_t i = 4; i < 10; i++){
+                          Serial.print(data[i], HEX);
+                            if (i!=9) Serial.print(F(":"));
                         }
                         Serial.println();
                       }
@@ -511,7 +516,7 @@ uint8_t btCheckResponce() {
                     break;
                   case BK3266SR_RESPONCE_PHONE_NAME:
                     {
-                      Serial.print("Phone name");
+                      Serial.print(F("Phone name"));
                       for (uint8_t i = 1; i < packetbyte - 1; i++) {
                         if (DEBUG) {
                           Serial.write(data[i]);
@@ -522,7 +527,7 @@ uint8_t btCheckResponce() {
                     break;
                   case BK3266SR_RESPONCE_NAME:
                     {
-                      Serial.print("Bluetooth name");
+                      Serial.print(F("Bluetooth name"));
                       for (uint8_t i = 1; i < packetbyte - 1; i++) {
                         if (DEBUG) {
                           Serial.write(data[i]);
@@ -533,7 +538,7 @@ uint8_t btCheckResponce() {
                     break;
                   case BK3266SR_RESPONCE_ADDR:
                     {
-                      Serial.print("Bluetooth addr");
+                      Serial.print(F("Bluetooth addr: "));
                       for (uint8_t i = 1; i < packetbyte - 1; i++) {
                         if (DEBUG) {
                           Serial.print(data[i], HEX);
@@ -719,4 +724,44 @@ String decodeCmd(uint8_t cmd) {
     case BK3266SR_CMD_ENTER_RECEIVE_MODE: return F("Enter receive mode");
     case BK3266SR_CMD_SET_BLUETOOTH_NAME: return F("Change Bluetooth name");
   }
+}
+
+void printHelp(){
+  Serial.println(F("w: printHelp"));
+  Serial.println(F("1: transmit"));
+  Serial.println(F("2: receiver"));
+  Serial.println(F("3: getPhoneName"));
+  Serial.println(F("4: playpause"));
+  Serial.println(F("5: search"));
+  Serial.println(F("6: getModuleName"));
+  Serial.println(F("7: getModuleAddr"));
+  Serial.println(F("8: pairingState"));
+  Serial.println(F("9: connect"));
+  Serial.println(F("0: disconnect"));
+  Serial.println(F("a: pickupCall"));
+  Serial.println(F("A: rejectcall"));
+  Serial.println(F("b: hangUpCall"));
+  Serial.println(F("B: redialLastCall"));
+  Serial.println(F("c: volumeUp"));
+  Serial.println(F("C: volumeDown"));
+  Serial.println(F("d: stop"));
+  Serial.println(F("D: nextTrack"));
+  Serial.println(F("e: previousTrack"));
+  Serial.println(F("E: forward"));
+  Serial.println(F("f: rewind"));
+  Serial.println(F("F: version"));
+  Serial.println(F("g: isAclLinked"));
+  Serial.println(F("G: callStatus"));
+  Serial.println(F("h: songStatus"));
+  Serial.println(F("H: getVolume"));
+  Serial.println(F("i: trasmitSearch"));
+  Serial.println(F("I: trasmitDisable"));
+  Serial.println(F("j: reset"));
+  Serial.println(F("J: idleMode"));
+  Serial.println(F("k: mute"));
+  Serial.println(F("K: unmute"));
+  Serial.println(F("l: clearKey"));
+  Serial.println(F("L: remoteAddr"));
+  Serial.println(F("m: setName"));
+  Serial.println(F("M: call"));
 }
