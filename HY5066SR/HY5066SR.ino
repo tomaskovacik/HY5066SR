@@ -278,7 +278,7 @@ void loop() {
   if (Serial.available()) {      // If anything comes in Serial (USB),
     char c = Serial.read();
     switch (c) {
-      case 'w': printHelp();break;
+      case 'w': printHelp(); break;
       case '1': transmit(); break;
       case '2': receiver(); break;
       case '3': getPhoneName(); break;
@@ -316,30 +316,30 @@ void loop() {
       case 'm': {
           uint8_t name[32];
           name[0] = 1; //0th=packetsize,1st=BK3266SR_CMD_TYPE_SEND_RECEIVER_DATA, 2nd = BK3266SR_CMD_SET_BLUETOOTH_NAME, 3th and up -> name
-          name[name[0]++] = BK3266SR_CMD_TYPE_SEND_RECEIVER_DATA;
-          name[name[0]++] = BK3266SR_CMD_SET_BLUETOOTH_NAME;
+          name[name[0]++] = BK3266SR_CMD_TYPE_SEND_RECEIVER_DATA;//name[0] =>2
+          name[name[0]++] = BK3266SR_CMD_SET_BLUETOOTH_NAME;//name[0] =>3
           uint8_t g;
+          Serial.println(F("Enter name:"));
           while (name[0] == 3) {
             while (Serial.available()) {
-              g = Serial.read();
-              if (g == '\n' || g == '\r') {
+              g = Serial.read(); //read serial
+              if (g == '\n' || g == '\r') { //if it is /n /r
                 //Serial.println("nl\cr");
                 continue;
               }
-              name[name[0]++] = g;
-              Serial.write(g);
+                name[name[0]++] = g; //we will store it
             }
-            if (name[0] == 2) Serial.println(F("Enter name:"));
+            delay(100);
           }
-          for (uint8_t i = 0; i < name[0]; i++) {
-            if (DEBUG) {
-              if (i < 3) {
-                Serial.print(name[i], HEX); Serial.print(F("|"));
-              } else {
-                Serial.write(name[i]); Serial.print(F("|"));
-              }
+          //Serial.println(name[0]);
+          if (DEBUG) for (uint8_t i = 3; i < name[0]; i++) {
+              /* if (i < 3) {
+                 Serial.print(name[i], HEX); Serial.print(F("|"));
+                } else {*/
+              Serial.write(name[i]);// Serial.print(F("|"));
+              //}
             }
-          }
+          delay(1000);
           setName(name);
         }
         break;
@@ -453,10 +453,10 @@ uint8_t btCheckResponce() {
             crc = 0;
             for (uint8_t i = 0; i < packetbyte - 1; i++) {
               crc += data[i];
-//              if (DEBUG) {
-//                Serial.print(data[i], HEX);
-//                Serial.print("|");
-//              }
+              //              if (DEBUG) {
+              //                Serial.print(data[i], HEX);
+              //                Serial.print("|");
+              //              }
             }
             //            if (DEBUG) {
             //              Serial.print(data[packetbyte - 1], HEX);
@@ -465,7 +465,7 @@ uint8_t btCheckResponce() {
             //            }
 
             if (crc == data[packetbyte - 1]) {
-              Serial.println(F(" [crc OK]"));
+              //if (DEBUG) Serial.println(F(" [crc OK]"));
               if (DEBUG) Serial.println(decodeResponce(data[1]));
               if (DEBUG)
                 switch (data[1]) {
@@ -485,16 +485,16 @@ uint8_t btCheckResponce() {
                   case BK3266SR_CMD_TYPE_FOUND_DEVICE: //BK3266SR_RESPONCE_TB:
                     {
                       if (DEBUG) { //Found devices: [0] signal: 197 addr: [8D:64:CB:FA:58:FC] KOVOTEST
-                        Serial.print(F("Found devices:  [")); Serial.print(data[3],DEC); Serial.print(F("] "));//device index
+                        Serial.print(F("Found devices:  [")); Serial.print(data[3], DEC); Serial.print(F("] ")); //device index
                         for (uint8_t i = 10; i < packetbyte - 1; i++) {
                           Serial.write(data[i]);
                         }
-                        
+
                         Serial.print(F(" Signal level: ")); Serial.print(data[2]); // signal strength
                         Serial.print(F(" addr: ["));
-                        for (uint8_t i = 4; i < 10; i++){
+                        for (uint8_t i = 4; i < 10; i++) {
                           Serial.print(data[i], HEX);
-                            if (i!=9) Serial.print(F(":"));
+                          if (i != 9) Serial.print(F(":"));
                         }
                         Serial.println();
                       }
@@ -598,15 +598,12 @@ uint8_t senddata(uint8_t data[]) {
   start();
   static uint8_t crc;
   crc = 0;
-  for (uint8_t i = 0; i < data[0] - 1; i++) {
+  for (uint8_t i = 0; i < data[0]-1; i++) { //count till crc
     btSerial.write(data[i]);
-    if (DEBUG) {
-      Serial.write(data[i]);
-    }
+    if (DEBUG) Serial.write(data[i]);
     crc += data[i];
   }
-
-  btSerial.write(crc & 0xFF); Serial.print(crc, HEX);
+  btSerial.write(crc & 0xFF); //Serial.print(crc, HEX);
   end();
   return btCheckResponce();
 }
@@ -726,7 +723,7 @@ String decodeCmd(uint8_t cmd) {
   }
 }
 
-void printHelp(){
+void printHelp() {
   Serial.println(F("w: printHelp"));
   Serial.println(F("1: transmit"));
   Serial.println(F("2: receiver"));
