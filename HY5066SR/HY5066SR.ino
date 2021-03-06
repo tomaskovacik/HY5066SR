@@ -81,7 +81,7 @@
 #define BK3266SR_STATUS_INCOMMING_CALL 0x73  //  Incoming call 
 #define BK3266SR_STATUS_ID 0x74  //  Call 
 #define BK3266SR_STATUS_TRANSMITTER 0x75  //  Launch mode
-#define BK3266SR_STATUS_TRANSMITTER_MODE 0x76  //  Bluetooth mode
+#define BK3266SR_STATUS_RECEIVER_MODE 0x76  //  Bluetooth mode
 #define BK3266SR_STATUS_END 0x77 //  End of launch search
 #define BK3266SR_STATUS_WC 0x78  //  Launch paired successfully
 #define BK3266SR_STATUS_WD 0x79  //  Launch disconnect
@@ -278,7 +278,7 @@ void loop() {
   if (Serial.available()) {      // If anything comes in Serial (USB),
     char c = Serial.read();
     switch (c) {
-      case 'w': printHelp();
+      case 'w': printHelp();break;
       case '1': transmit(); break;
       case '2': receiver(); break;
       case '3': getPhoneName(); break;
@@ -632,8 +632,8 @@ String decodeResponce(uint8_t RSP) {
 
 String decodeReceivedData(uint8_t data) {
   switch (data) {
-    case BK3266SR_STATUS_OK: return F("Answer OK");
-    case BK3266SR_STATUS_TIMEOUT: return F("time out");
+    case BK3266SR_STATUS_OK: return F("OK");
+    case BK3266SR_STATUS_TIMEOUT: return F("Time out");
     case BK3266SR_STATUS_PLAY: return F("Play");
     case BK3266SR_STATUS_ON: return F("Boot up");
     case BK3266SR_STATUS_LINK_CONNECTED: return F("Link successfully");
@@ -647,12 +647,12 @@ String decodeReceivedData(uint8_t data) {
     case BK3266SR_STATUS_INCOMMING_CALL: return F("Incoming call");
     case BK3266SR_STATUS_ID: return F("Call");
     case BK3266SR_STATUS_TRANSMITTER: return F("Transmit mode");
-    case BK3266SR_STATUS_TRANSMITTER_MODE: return F("Receive mode");
-    case BK3266SR_STATUS_END: return F("End of launch search");
-    case BK3266SR_STATUS_WC: return F("Launch paired successfully");
-    case BK3266SR_STATUS_WD: return F("Transmit mode disconnect");
-    case BK3266SR_STATUS_IA: return F("Receive disconnect");
-    case BK3266SR_STATUS_IDLE: return F("Enter idle mode");
+    case BK3266SR_STATUS_RECEIVER_MODE: return F("Receiver mode");
+    case BK3266SR_STATUS_END: return F("End of transmitter search");
+    case BK3266SR_STATUS_WC: return F("Transmitter paired successfully");
+    case BK3266SR_STATUS_WD: return F("Transmitter disconnected");
+    case BK3266SR_STATUS_IA: return F("Receiver disconnected");
+    case BK3266SR_STATUS_IDLE: return F("Enteridle mode");
     case BK3266SR_STATUS_MUTE: return F("MUTE amplifier");
     case BK3266SR_STATUS_UNMUTE: return F("Turn on the amplifier");
   }
