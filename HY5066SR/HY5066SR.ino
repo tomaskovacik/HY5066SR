@@ -11,7 +11,7 @@
 #define BK3266SR_CMD_TYPE_OUTGOING_NUMBER  0x02  //Data is outgoing number
 #define BK3266SR_CMD_TYPE_CALLER_NUMBER  0x03  //The data is the caller number
 #define BK3266SR_CMD_TYPE_CURRENT_VOLUME 0x04  //Data is the current volume
-#define BK3266SR_CMD_TYPE_SEND_TRANSMITER_DATA 0x05  //Launch mode command
+#define BK3266SR_CMD_TYPE_SEND_TRANSMITTER_DATA 0x05  //Launch mode command
 #define BK3266SR_CMD_TYPE_FOUND_DEVICE 0x06  /*The data is the found device A+B+C+D
       A[1] signal strength
       B[1] Equipment Index
@@ -51,8 +51,8 @@
 //#define BK3266SR_CMD_V0 0x18  //  OPEN test 1K signal MCU-->BT
 //#define BK3266SR_CMD_VS 0x19  //  STOP test 1K signal MCU-->BT
 #define BK3266SR_CMD_GET_CURRENT_VOLUME  0x1A  //  Query current volume  MCU-->BT  
-#define BK3266SR_CMD_AUX_SEARCH 0x1B  //  Launch mode search device MCU-->BT  cmd 0x05
-#define BK3266SR_CMD_AUX_DISABLE  0x1C  //  Launch mode is off  MCU-->BT  cmd 0x05
+#define BK3266SR_CMD_TRANSMITTER_SEARCH 0x1B  //  Launch mode search device MCU-->BT  cmd 0x05
+#define BK3266SR_CMD_TRANSMITTER_DISABLE  0x1C  //  Launch mode is off  MCU-->BT  cmd 0x05
 //  Equipment index【0-6】  //  Launch mode to connect back to the device MCU-->BT  cmd 0x05
 #define BK3266SR_CMD_RESET  0x1D  //  Reset MCU-->BT  Confirm the mode and check the IO port level before sending the command
 //#define BK3266SR_CMD_TESTMODE 0x1E  //  Reconnect to the specified address 0x888888888888 MCU-->BT  For test mode
@@ -62,7 +62,7 @@
 #define BK3266SR_CMD_UNMUTE 0x21  //  Transmit mode is not muted  MCU-->BT  
 #define BK3266SR_CMD_CLEAR_KEY  0x22  //  CLEAR KEY MCU-->BT  
 #define BK3266SR_CMD_REMOTE_ADDR  0x23  //  Query the address of the Bluetooth connection MCU-->BT  
-#define BK3266SR_CMD_ENTER_TRANSMIT_MODE 0x24  //  Enter launch mode MCU-->BT  The machine will automatically restart after sending the command (for the case of automatic startup)
+#define BK3266SR_CMD_ENTER_TRANSMITTER 0x24  //  Enter launch mode MCU-->BT  The machine will automatically restart after sending the command (for the case of automatic startup)
 #define BK3266SR_CMD_ENTER_RECEIVE_MODE  0x25  //  Enter receive mode  MCU-->BT  If it is already in the receiving mode, it returns to the receiving state, and the same is true for the transmitting mode
 #define BK3266SR_CMD_SET_BLUETOOTH_NAME  0x29  //  Change Bluetooth name MCU-->BT  
 
@@ -80,8 +80,8 @@
 #define BK3266SR_STATUS_M4 0x72  //  Query returns during the call
 #define BK3266SR_STATUS_INCOMMING_CALL 0x73  //  Incoming call 
 #define BK3266SR_STATUS_ID 0x74  //  Call 
-#define BK3266SR_STATUS_AUX 0x75  //  Launch mode
-#define BK3266SR_STATUS_BLUETOOTH_MODE 0x76  //  Bluetooth mode
+#define BK3266SR_STATUS_TRANSMITTER 0x75  //  Launch mode
+#define BK3266SR_STATUS_TRANSMITTER_MODE 0x76  //  Bluetooth mode
 #define BK3266SR_STATUS_END 0x77 //  End of launch search
 #define BK3266SR_STATUS_WC 0x78  //  Launch paired successfully
 #define BK3266SR_STATUS_WD 0x79  //  Launch disconnect
@@ -208,8 +208,8 @@ uint8_t songStatus() {
 uint8_t getVolume() {
   return senddata(BK3266SR_CMD_GET_CURRENT_VOLUME);
 }
-uint8_t auxSearch() {
-  return sendOtherData(BK3266SR_CMD_TYPE_SEND_TRANSMITER_DATA, BK3266SR_CMD_AUX_SEARCH);
+uint8_t trasmitSearch() {
+  return sendOtherData(BK3266SR_CMD_TYPE_SEND_TRANSMITTER_DATA, BK3266SR_CMD_TRANSMITTER_SEARCH);
 
 
   //  start();
@@ -229,8 +229,8 @@ uint8_t auxSearch() {
   //  end();
   //  return btCheckResponce();
 }
-uint8_t auxDisable() {
-  return sendOtherData(BK3266SR_CMD_TYPE_SEND_TRANSMITER_DATA, BK3266SR_CMD_AUX_DISABLE);
+uint8_t trasmitDisable() {
+  return sendOtherData(BK3266SR_CMD_TYPE_SEND_TRANSMITTER_DATA, BK3266SR_CMD_TRANSMITTER_DISABLE);
 }
 uint8_t reset() {
   return senddata(BK3266SR_CMD_RESET);
@@ -251,7 +251,7 @@ uint8_t remoteAddr() {
   return senddata(BK3266SR_CMD_REMOTE_ADDR);
 }
 uint8_t transmit() {
-  return senddata(BK3266SR_CMD_ENTER_TRANSMIT_MODE);
+  return senddata(BK3266SR_CMD_ENTER_TRANSMITTER);
 }
 uint8_t receiver() {
   return senddata(BK3266SR_CMD_ENTER_RECEIVE_MODE);
@@ -304,8 +304,8 @@ void loop() {
       case 'G': callStatus(); break;
       case 'h': songStatus(); break;
       case 'H': getVolume(); break;
-      case 'i': auxSearch(); break;
-      case 'I': auxDisable(); break;
+      case 'i': trasmitSearch(); break;
+      case 'I': trasmitDisable(); break;
       case 'j': reset(); break;
       case 'J': idleMode(); break;
       case 'k': mute(); break;
@@ -641,8 +641,8 @@ String decodeReceivedData(uint8_t data) {
     case BK3266SR_STATUS_M4: return F("Query returns during the call");
     case BK3266SR_STATUS_INCOMMING_CALL: return F("Incoming call");
     case BK3266SR_STATUS_ID: return F("Call");
-    case BK3266SR_STATUS_AUX: return F("Transmit mode");
-    case BK3266SR_STATUS_BLUETOOTH_MODE: return F("Receive mode");
+    case BK3266SR_STATUS_TRANSMITTER: return F("Transmit mode");
+    case BK3266SR_STATUS_TRANSMITTER_MODE: return F("Receive mode");
     case BK3266SR_STATUS_END: return F("End of launch search");
     case BK3266SR_STATUS_WC: return F("Launch paired successfully");
     case BK3266SR_STATUS_WD: return F("Transmit mode disconnect");
@@ -660,7 +660,7 @@ String decodeCmdType(uint8_t cmd) {
     case BK3266SR_CMD_TYPE_OUTGOING_NUMBER: return F("Data is outgoing number");
     case BK3266SR_CMD_TYPE_CALLER_NUMBER: return F("The data is the caller number");
     case BK3266SR_CMD_TYPE_CURRENT_VOLUME: return F("Data is the current volume");
-    case BK3266SR_CMD_TYPE_SEND_TRANSMITER_DATA: return F("Launch mode command");
+    case BK3266SR_CMD_TYPE_SEND_TRANSMITTER_DATA: return F("Launch mode command");
     case BK3266SR_CMD_TYPE_FOUND_DEVICE: return F("The data is the found device A+B+C+D");/*
       A[1] signal strength
       B[1] Equipment Index
@@ -704,8 +704,8 @@ String decodeCmd(uint8_t cmd) {
     //case BK3266SR_CMD_V0: return F("OPEN test 1K signal");
     //case BK3266SR_CMD_VS: return F("STOP test 1K signal");
     case BK3266SR_CMD_GET_CURRENT_VOLUME: return F("Query current volume");
-    case BK3266SR_CMD_AUX_SEARCH: return F(" Launch mode search device");// MCU-- > BT  cmd 0x05
-    case BK3266SR_CMD_AUX_DISABLE: return F("Launch mode is off");//MCU-->BT  cmd 0x05
+    case BK3266SR_CMD_TRANSMITTER_SEARCH: return F(" Launch mode search device");// MCU-- > BT  cmd 0x05
+    case BK3266SR_CMD_TRANSMITTER_DISABLE: return F("Launch mode is off");//MCU-->BT  cmd 0x05
     //  Equipment index【0-6】  //  Launch mode to connect back to the device MCU-->BT  cmd 0x05
     case BK3266SR_CMD_RESET: return F("Reset");// MCU-->BT  Confirm the mode and check the IO port level before sending the command
     //case BK3266SR_CMD_TESTMODE: return F("Reconnect to the specified address");// 0x888888888888 MCU-->BT  For test mode
@@ -715,7 +715,7 @@ String decodeCmd(uint8_t cmd) {
     case BK3266SR_CMD_UNMUTE: return F("Transmit mode is not muted");
     case BK3266SR_CMD_CLEAR_KEY: return F("CLEAR KEY");
     case BK3266SR_CMD_REMOTE_ADDR: return F("Query the address of the Bluetooth connection");
-    case BK3266SR_CMD_ENTER_TRANSMIT_MODE: return F("Enter launch mode");
+    case BK3266SR_CMD_ENTER_TRANSMITTER: return F("Enter launch mode");
     case BK3266SR_CMD_ENTER_RECEIVE_MODE: return F("Enter receive mode");
     case BK3266SR_CMD_SET_BLUETOOTH_NAME: return F("Change Bluetooth name");
   }
