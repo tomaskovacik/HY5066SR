@@ -7,11 +7,11 @@
 #define BK3266SR_23 0x23
 
 #define BK3266SR_CMD_TYPE_ASWER  0x00  //answer
-#define BK3266SR_CMD_TYPE_SEND_DATA  0x01  //send data
+#define BK3266SR_CMD_TYPE_SEND_RECEIVER_DATA  0x01  //send data
 #define BK3266SR_CMD_TYPE_OUTGOING_NUMBER  0x02  //Data is outgoing number
 #define BK3266SR_CMD_TYPE_CALLER_NUMBER  0x03  //The data is the caller number
 #define BK3266SR_CMD_TYPE_CURRENT_VOLUME 0x04  //Data is the current volume
-#define BK3266SR_CMD_TYPE_LAUNCH 0x05  //Launch mode command
+#define BK3266SR_CMD_TYPE_SEND_TRANSMITER_DATA 0x05  //Launch mode command
 #define BK3266SR_CMD_TYPE_FOUND_DEVICE 0x06  /*The data is the found device A+B+C+D
       A[1] signal strength
       B[1] Equipment Index
@@ -209,10 +209,28 @@ uint8_t getVolume() {
   return senddata(BK3266SR_CMD_GET_CURRENT_VOLUME);
 }
 uint8_t auxSearch() {
-  return senddata(BK3266SR_CMD_AUX_SEARCH);
+  return sendOtherData(BK3266SR_CMD_TYPE_SEND_TRANSMITER_DATA, BK3266SR_CMD_AUX_SEARCH);
+
+
+  //  start();
+  //  static uint8_t crc;
+  //  btSerial.write(11); //length
+  //  btSerial.write(BK3266SR_CMD_TYPE_CONNECT_TO_NAME);
+  //  btSerial.write('K');
+  //  btSerial.write('O');
+  //  btSerial.write('V');
+  //  btSerial.write('O');
+  //  btSerial.write('T');
+  //  btSerial.write('E');
+  //  btSerial.write('S');
+  //  btSerial.write('T');
+  //  crc = 11+BK3266SR_CMD_TYPE_CONNECT_TO_NAME+'K'+'O'+'V'+'O'+'T'+'E'+'S'+'T';
+  //  btSerial.write(crc & 0xFF);
+  //  end();
+  //  return btCheckResponce();
 }
 uint8_t auxDisable() {
-  return senddata(BK3266SR_CMD_AUX_DISABLE);
+  return sendOtherData(BK3266SR_CMD_TYPE_SEND_TRANSMITER_DATA, BK3266SR_CMD_AUX_DISABLE);
 }
 uint8_t reset() {
   return senddata(BK3266SR_CMD_RESET);
@@ -241,9 +259,9 @@ uint8_t receiver() {
 uint8_t setName(uint8_t data[]) {
   return senddata(data);
 }
-uint8_t call(){//uint8_t data[]) {
-   uint8_t data[15]={0x0D,BK3266SR_CMD_TYPE_OUTGOING_NUMBER,'+','4','2','1','9','0','7','8','1','3','8','4','0'};
-   return senddata(data);
+uint8_t call() { //uint8_t data[]) {
+  uint8_t data[15] = {0x0D, BK3266SR_CMD_TYPE_OUTGOING_NUMBER, '+', '4', '2', '1', '9', '0', '7', '1', '2', '3', '4', '5', '6'};
+  return senddata(data);
 }
 
 uint8_t search() {
@@ -296,8 +314,8 @@ void loop() {
       case 'L': remoteAddr(); break;
       case 'm': {
           uint8_t name[32];
-          name[0] = 1; //0th=packetsize,1st=BK3266SR_CMD_TYPE_SEND_DATA, 2nd = BK3266SR_CMD_SET_BLUETOOTH_NAME, 3th and up -> name
-          name[name[0]++] = BK3266SR_CMD_TYPE_SEND_DATA;
+          name[0] = 1; //0th=packetsize,1st=BK3266SR_CMD_TYPE_SEND_RECEIVER_DATA, 2nd = BK3266SR_CMD_SET_BLUETOOTH_NAME, 3th and up -> name
+          name[name[0]++] = BK3266SR_CMD_TYPE_SEND_RECEIVER_DATA;
           name[name[0]++] = BK3266SR_CMD_SET_BLUETOOTH_NAME;
           uint8_t g;
           while (name[0] == 3) {
@@ -326,7 +344,7 @@ void loop() {
         break;
       case 'M': {
           uint8_t name[15]; //packetsize,BK3266SR_CMD_TYPE_OUTGOING_NUMBER,+421123456789
-          name[0] = 1; 
+          name[0] = 1;
           name[name[0]++] = BK3266SR_CMD_TYPE_OUTGOING_NUMBER;
           //name[name[0]++] = BK3266SR_CMD_SET_BLUETOOTH_NAME;
           uint8_t g;
@@ -360,12 +378,12 @@ void loop() {
 }
 
 uint8_t btCheckResponce() {
-  delay(100);
+  //delay(100);
   static uint8_t crc;
   static uint8_t packetbyte;
   static uint8_t data[32];
   static uint8_t timeout;
-  timeout = 100;
+  timeout = 10;
   while (timeout > 0 && btSerial.available()) {
     //Serial.println("btCheckResponce");
     while (btSerial.available()) {
@@ -434,10 +452,10 @@ uint8_t btCheckResponce() {
             crc = 0;
             for (uint8_t i = 0; i < packetbyte - 1; i++) {
               crc += data[i];
-              //              if (DEBUG) {
-              //                Serial.print(data[i], HEX);
-              //                Serial.print("|");
-              //              }
+//              if (DEBUG) {
+//                Serial.print(data[i], HEX);
+//                Serial.print("|");
+//              }
             }
             //            if (DEBUG) {
             //              Serial.print(data[packetbyte - 1], HEX);
@@ -446,12 +464,13 @@ uint8_t btCheckResponce() {
             //            }
 
             if (crc == data[packetbyte - 1]) {
-              //Serial.println(" [crc OK]");
+              Serial.println(" [crc OK]");
               if (DEBUG) Serial.println(decodeResponce(data[1]));
               if (DEBUG)
                 switch (data[1]) {
                   case BK3266SR_RESPONCE_ACK:
                     {
+
                     }
                     break;
                   case BK3266SR_RESPONCE_PR:
@@ -462,7 +481,19 @@ uint8_t btCheckResponce() {
                     break;
                   case BK3266SR_RESPONCE_TWS:
                     break;
-                  case BK3266SR_RESPONCE_TB:
+                  case BK3266SR_CMD_TYPE_FOUND_DEVICE: //BK3266SR_RESPONCE_TB:
+                    {
+                      if (DEBUG) { //Found devices: [0] signal: 197 addr: [8D:64:CB:FA:58:FC] KOVOTEST
+                        Serial.print("Found devices: ");
+                        Serial.print("["); Serial.print(data[3],DEC); Serial.print("] ");//device index
+                        Serial.print("signal: "); Serial.print(data[2]); // signal strength
+                        Serial.print(" addr: ["); Serial.print(data[4], HEX); Serial.print(":"); Serial.print(data[5], HEX); Serial.print(":"); Serial.print(data[6], HEX); Serial.print(":"); Serial.print(data[7], HEX); Serial.print(":"); Serial.print(data[8], HEX); Serial.print(":"); Serial.print(data[9], HEX);Serial.print("] ");
+                        for (uint8_t i = 10; i < packetbyte - 1; i++) {
+                          Serial.write(data[i]);
+                        }
+                        Serial.println();
+                      }
+                    }
                     break;
                   case BK3266SR_RESPONCE_VERSION:
                     break;
@@ -471,6 +502,7 @@ uint8_t btCheckResponce() {
                   case BK3266SR_RESPONCE_REMOTEADDR:
                     break;
                   case BK3266SR_RESPONCE_SEARCHREMOTEADDR:
+
                     break;
                   case BK3266SR_RESPONCE_SEND:
                     {
@@ -521,7 +553,7 @@ uint8_t btCheckResponce() {
       }
     }
     delay(50);
-    timeout -= 5;
+    timeout -= 1;
   }
   return false;
 }
@@ -530,9 +562,24 @@ uint8_t senddata(uint8_t data) {
   if (DEBUG) Serial.println(decodeCmd(data));
   start();
   static uint8_t crc;
-  crc = 0x05;
+  crc = 0x05;//0x04+BK3266SR_CMD_TYPE_SEND_RECEIVER_DATA=>0x01
   btSerial.write(0x04);
-  btSerial.write(BK3266SR_CMD_TYPE_SEND_DATA);
+  btSerial.write(BK3266SR_CMD_TYPE_SEND_RECEIVER_DATA);
+  btSerial.write(data);
+  crc += data;
+  btSerial.write(crc & 0xFF);
+  end();
+  return btCheckResponce();
+}
+
+uint8_t sendOtherData(uint8_t cmd, uint8_t data) {
+  if (DEBUG) Serial.println(decodeCmd(data));
+  start();
+  static uint8_t crc;
+  crc = 0x04;
+  btSerial.write(0x04); //length
+  btSerial.write(cmd);
+  crc += cmd;
   btSerial.write(data);
   crc += data;
   btSerial.write(crc & 0xFF);
@@ -561,7 +608,7 @@ uint8_t senddata(uint8_t data[]) {
 
 String decodeResponce(uint8_t RSP) {
   switch (RSP) {
-    case BK3266SR_RESPONCE_ACK: return F("answer");
+    case BK3266SR_RESPONCE_ACK: return F("ACK");
     case BK3266SR_RESPONCE_SEND: return F("Return data");
     case BK3266SR_RESPONCE_PR: return F("Connect number after outgoing call");
     case BK3266SR_RESPONCE_IR: return F("Follow the number after the call");
@@ -594,11 +641,11 @@ String decodeReceivedData(uint8_t data) {
     case BK3266SR_STATUS_M4: return F("Query returns during the call");
     case BK3266SR_STATUS_INCOMMING_CALL: return F("Incoming call");
     case BK3266SR_STATUS_ID: return F("Call");
-    case BK3266SR_STATUS_AUX: return F("Launch mode");
-    case BK3266SR_STATUS_BLUETOOTH_MODE: return F("Bluetooth mode");
+    case BK3266SR_STATUS_AUX: return F("Transmit mode");
+    case BK3266SR_STATUS_BLUETOOTH_MODE: return F("Receive mode");
     case BK3266SR_STATUS_END: return F("End of launch search");
     case BK3266SR_STATUS_WC: return F("Launch paired successfully");
-    case BK3266SR_STATUS_WD: return F("Launch disconnect");
+    case BK3266SR_STATUS_WD: return F("Transmit mode disconnect");
     case BK3266SR_STATUS_IA: return F("Receive disconnect");
     case BK3266SR_STATUS_IDLE: return F("Enter idle mode");
     case BK3266SR_STATUS_MUTE: return F("MUTE amplifier");
@@ -609,11 +656,11 @@ String decodeReceivedData(uint8_t data) {
 String decodeCmdType(uint8_t cmd) {
   switch (cmd) {
     case BK3266SR_CMD_TYPE_ASWER: return F("answer");
-    case BK3266SR_CMD_TYPE_SEND_DATA: return F("send data");
+    case BK3266SR_CMD_TYPE_SEND_RECEIVER_DATA: return F("send data");
     case BK3266SR_CMD_TYPE_OUTGOING_NUMBER: return F("Data is outgoing number");
     case BK3266SR_CMD_TYPE_CALLER_NUMBER: return F("The data is the caller number");
     case BK3266SR_CMD_TYPE_CURRENT_VOLUME: return F("Data is the current volume");
-    case BK3266SR_CMD_TYPE_LAUNCH: return F("Launch mode command");
+    case BK3266SR_CMD_TYPE_SEND_TRANSMITER_DATA: return F("Launch mode command");
     case BK3266SR_CMD_TYPE_FOUND_DEVICE: return F("The data is the found device A+B+C+D");/*
       A[1] signal strength
       B[1] Equipment Index
