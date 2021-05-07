@@ -220,6 +220,12 @@ uint8_t trasmitConnectToName(uint8_t data[]) {
   data[2] = BK3266SR_CMD_TYPE_CONNECT_TO_NAME;
   return senddata(data);
 }
+uint8_t trasmitConnectToAddress(uint8_t data[]) {
+  data[1] = BK3266SR_CMD_TYPE_SEND_TRANSMITTER_DATA;
+  data[2] = BK3266SR_CMD_TYPE_CONNECT_TO_REMOTE_ADDRESS;
+  return senddata(data);
+}
+
 uint8_t reset() {
   return senddata(BK3266SR_CMD_RESET);
 }
@@ -380,9 +386,49 @@ void loop() {
           trasmitConnectToName(name);
         }
         break;
+      case 'N': {
+          uint8_t name[32];
+          name[0] = 3; //0th=packetsize,1st=BK3266SR_CMD_TYPE_SEND_TRANSMITTER_DATA, 2nd = BK3266SR_CMD_TYPE_CONNECT_TO_NAME, 3th and up -> name
+          uint8_t g;
+          delay(500);//wait for incoming buffer to read serial data if any
+          while (Serial.available() > 0) {
+            delay(1);  //clear buffer
+            Serial.read();
+          }
+          Serial.print(F("============================"));
+          Serial.print(F("========NOT WORKING!========"));
+          Serial.print(F("============================"));
+          Serial.print(F("Enter address: "));
+          while (Serial.available() == 0); //wait for user to enter data
+          delay(500);//wait for incoming buffer to read serial data if any
+          while (Serial.available()) {
+            g = Serial.read(); //read serial          
+            if (g == '\n' || g == '\r') { //if it is /n /r
+              continue;//skipp
+            }
+            //no enter lets continue:
+            Serial.write(g);//print back what we read
+            Serial.print("(");Serial.print(g,HEX);Serial.print(")");
+            name[name[0]] = (h2d(g) << 4);
+            g = Serial.read(); //read serial, should not be enter or cr
+            name[name[0]++] |= h2d(g); //we will store it
+            Serial.write(g);//print back what we read
+            Serial.print("(");Serial.print(g,HEX);Serial.print(")");
+            Serial.print(":"); //lets be fancy! yeeee
+          }
+          Serial.println();
+          trasmitConnectToAddress(name);
+        }
+        break;
     }
   }
   btCheckResponce();
+}
+
+uint8_t h2d(uint8_t hex)
+{
+        if(hex > 0x39) hex -= 7; // adjust for hex letters upper or lower case
+        return(hex & 0xf);
 }
 
 uint8_t btCheckResponce() {
@@ -616,12 +662,12 @@ uint8_t senddata(uint8_t data[]) {
   for (uint8_t i = 0; i < data[0] - 1; i++) { //count till crc
     btSerial.write(data[i]);
     if (DEBUG) {
-      if (i < 2) {
+     // if (i < 2) {
         Serial.print(data[i], HEX); Serial.print("|");
-      }
-      if (i > 1) {
-        Serial.write(data[i]); Serial.print("|");
-      }
+      //}
+     // if (i > 1) {
+      //  Serial.write(data[i]); Serial.print("|");
+     // }
     }
     crc += data[i];
   }
