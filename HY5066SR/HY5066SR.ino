@@ -215,6 +215,11 @@ uint8_t trasmitSearch() {
 uint8_t trasmitDisconnect() {
   return sendOtherData(BK3266SR_CMD_TYPE_SEND_TRANSMITTER_DATA, BK3266SR_CMD_TRANSMITTER_DISABLE);
 }
+uint8_t trasmitConnectToName(uint8_t data[]) {
+  data[1] = BK3266SR_CMD_TYPE_SEND_TRANSMITTER_DATA;
+  data[2] = BK3266SR_CMD_TYPE_CONNECT_TO_NAME;
+  return senddata(data);
+}
 uint8_t reset() {
   return senddata(BK3266SR_CMD_RESET);
 }
@@ -349,6 +354,30 @@ void loop() {
           }
           Serial.println();
           call(number);
+        }
+        break;
+      case 'n': {
+          uint8_t name[32];
+          name[0] = 3; //0th=packetsize,1st=BK3266SR_CMD_TYPE_SEND_TRANSMITTER_DATA, 2nd = BK3266SR_CMD_TYPE_CONNECT_TO_NAME, 3th and up -> name
+          uint8_t g;
+          delay(500);//wait for incoming buffer to read serial data if any
+          while (Serial.available() > 0) {
+            delay(1);  //clear buffer
+            Serial.read();
+          }
+          Serial.print(F("Enter name: "));
+          while (Serial.available() == 0); //wait for user to enter data
+          delay(500);//wait for incoming buffer to read serial data if any
+          while (Serial.available()) {
+            g = Serial.read(); //read serial
+            if (g == '\n' || g == '\r') { //if it is /n /r
+              continue;//skipp
+            }
+            name[name[0]++] = g; //we will store it
+            Serial.write(g);//print back what we read
+          }
+          Serial.println();
+          trasmitConnectToName(name);
         }
         break;
     }
@@ -776,4 +805,5 @@ void printHelp() {
   Serial.println(F("L: remoteAddr"));
   Serial.println(F("m: setName"));
   Serial.println(F("M: call"));
+  Serial.println(F("n: connect to name"));
 }
