@@ -1,4 +1,8 @@
-#include "SoftwareSerial.h"
+//#include "SoftwareSerial.h"
+
+
+
+
 
 #define DEBUG 1
 
@@ -52,7 +56,7 @@
 //#define BK3266SR_CMD_VS 0x19  //  STOP test 1K signal MCU-->BT
 #define BK3266SR_CMD_GET_CURRENT_VOLUME  0x1A  //  Query current volume  MCU-->BT  
 #define BK3266SR_CMD_TRANSMITTER_SEARCH 0x1B  //  Launch mode search device MCU-->BT  cmd 0x05
-#define BK3266SR_CMD_TRANSMITTER_DISABLE  0x1C  //  Launch mode is off  MCU-->BT  cmd 0x05
+#define BK3266SR_CMD_TRANSMITTER_DISCONNECT  0x1C  //  Launch mode is off  MCU-->BT  cmd 0x05
 //  Equipment index【0-6】  //  Launch mode to connect back to the device MCU-->BT  cmd 0x05
 #define BK3266SR_CMD_RESET  0x1D  //  Reset MCU-->BT  Confirm the mode and check the IO port level before sending the command
 //#define BK3266SR_CMD_TESTMODE 0x1E  //  Reconnect to the specified address 0x888888888888 MCU-->BT  For test mode
@@ -106,8 +110,8 @@
 #define BK3266SR_RESPONCE_SEARCHREMOTEADDR 0x0D  //  Bluetooth address searched by the transmitter
 
 
-SoftwareSerial btSerial(7, 6); //rxPin, txPin, inverse_logic
-
+//SoftwareSerial btSerial(7, 6); //rxPin, txPin, inverse_logic
+#define btSerial Serial1
 enum flowstate : uint8_t {
   START_52,
   START_42,
@@ -213,16 +217,15 @@ uint8_t trasmitSearch() {
   return sendOtherData(BK3266SR_CMD_TYPE_SEND_TRANSMITTER_DATA, BK3266SR_CMD_TRANSMITTER_SEARCH);
 }
 uint8_t trasmitDisconnect() {
-  return sendOtherData(BK3266SR_CMD_TYPE_SEND_TRANSMITTER_DATA, BK3266SR_CMD_TRANSMITTER_DISABLE);
+  return sendOtherData(BK3266SR_CMD_TYPE_SEND_TRANSMITTER_DATA, BK3266SR_CMD_TRANSMITTER_DISCONNECT);
 }
 uint8_t trasmitConnectToName(uint8_t data[]) {
   data[1] = BK3266SR_CMD_TYPE_SEND_TRANSMITTER_DATA;
   data[2] = BK3266SR_CMD_TYPE_CONNECT_TO_NAME;
   return senddata(data);
 }
-uint8_t trasmitConnectToAddress(uint8_t data[]) {
-  data[1] = BK3266SR_CMD_TYPE_SEND_TRANSMITTER_DATA;
-  data[2] = BK3266SR_CMD_TYPE_CONNECT_TO_REMOTE_ADDRESS;
+uint8_t trasmitConnectToAddress(uint8_t data[5]){
+  data[1] = BK3266SR_CMD_TYPE_SEND_TO_CONNECT_ADDRESS; 
   return senddata(data);
 }
 
@@ -388,16 +391,13 @@ void loop() {
         break;
       case 'N': {
           uint8_t name[32];
-          name[0] = 3; //0th=packetsize,1st=BK3266SR_CMD_TYPE_SEND_TRANSMITTER_DATA, 2nd = BK3266SR_CMD_TYPE_CONNECT_TO_NAME, 3th and up -> name
+          name[0] = 2; //0th=packetsize,1st= BK3266SR_CMD_TYPE_CONNECT_TO_NAME, 2nd and up -> name
           uint8_t g;
           delay(500);//wait for incoming buffer to read serial data if any
           while (Serial.available() > 0) {
             delay(1);  //clear buffer
             Serial.read();
           }
-          Serial.print(F("============================"));
-          Serial.print(F("========NOT WORKING!========"));
-          Serial.print(F("============================"));
           Serial.print(F("Enter address: "));
           while (Serial.available() == 0); //wait for user to enter data
           delay(500);//wait for incoming buffer to read serial data if any
@@ -417,6 +417,7 @@ void loop() {
             Serial.print(":"); //lets be fancy! yeeee
           }
           Serial.println();
+          disconnect();
           trasmitConnectToAddress(name);
         }
         break;
@@ -571,7 +572,10 @@ uint8_t btCheckResponce() {
                     break;
                   case BK3266SR_RESPONCE_SEND:
                     {
+                      if (data[2] > 0x60 && data[2] < 0x7E)
                       Serial.println(decodeReceivedData(data[2]));
+                      else
+                      dumpHEXdata(data);
                     }
                     break;
                   case BK3266SR_RESPONCE_PHONE_NAME:
@@ -679,7 +683,6 @@ uint8_t senddata(uint8_t data[]) {
 
 uint8_t dumpdata(uint8_t data[]) {
   Serial.println("caling dumpdata--------------------------------");
-  data[0]++;
   static uint8_t crc;
   crc = 0;
   for (uint8_t i = 0; i < data[0] - 1; i++) { //count till crc
@@ -692,6 +695,19 @@ uint8_t dumpdata(uint8_t data[]) {
     if (i > 1) {
       Serial.write(data[i]); Serial.print("|");
     }
+    crc += data[i];
+  }
+  Serial.print(" CRC: "); Serial.println(crc, HEX);
+  Serial.println("caling dumpdata end--------------------------------");
+}
+
+uint8_t dumpHEXdata(uint8_t data[]) {
+  Serial.println("caling dumpdata--------------------------------");
+  static uint8_t crc;
+  crc = 0;
+  for (uint8_t i = 0; i < data[0] - 1; i++) { //count till crc
+    //if (i > 1 && i < data[0]-1) 
+    Serial.print(data[i], HEX); Serial.print("|");
     crc += data[i];
   }
   Serial.print(" CRC: "); Serial.println(crc, HEX);
@@ -714,6 +730,7 @@ String decodeResponce(uint8_t RSP) {
     case BK3266SR_RESPONCE_AUTADD: return F("AUTADD");
     case BK3266SR_RESPONCE_REMOTEADDR: return F("The transmitter connects to the Bluetooth address");
     case BK3266SR_RESPONCE_SEARCHREMOTEADDR: return F("Bluetooth address searched by the transmitter");
+    default: return "UNRSD"+String(RSP,HEX);
   }
 }
 
@@ -742,6 +759,7 @@ String decodeReceivedData(uint8_t data) {
     case BK3266SR_STATUS_IDLE: return F("Enteridle mode");
     case BK3266SR_STATUS_MUTE: return F("MUTE amplifier");
     case BK3266SR_STATUS_UNMUTE: return F("Turn on the amplifier");
+    default: return "UNRCD"+String(data,HEX);
   }
 }
 
@@ -765,6 +783,7 @@ String decodeCmdType(uint8_t cmd) {
     case BK3266SR_CMD_TYPE_SEND_TO_CONNECT_ADDRESS: return F("mcu send back to connect address");
     case BK3266SR_CMD_TYPE_CONNECT_TO_REMOTE_ADDRESS: return F("The transmitter connects to the Bluetooth address");
     case BK3266SR_CMD_TYPE_SEARCH_REMOTE_ADDRESS: return F("Bluetooth address searched by the transmitter");
+    default: return "UNCT"+String(cmd,HEX);
   }
 }
 
@@ -797,7 +816,7 @@ String decodeCmd(uint8_t cmd) {
     //case BK3266SR_CMD_VS: return F("STOP test 1K signal");
     case BK3266SR_CMD_GET_CURRENT_VOLUME: return F("Query current volume");
     case BK3266SR_CMD_TRANSMITTER_SEARCH: return F(" Launch mode search device");// MCU-- > BT  cmd 0x05
-    case BK3266SR_CMD_TRANSMITTER_DISABLE: return F("Launch mode is off");//MCU-->BT  cmd 0x05
+    case BK3266SR_CMD_TRANSMITTER_DISCONNECT: return F("Launch mode is off");//MCU-->BT  cmd 0x05
     //  Equipment index【0-6】  //  Launch mode to connect back to the device MCU-->BT  cmd 0x05
     case BK3266SR_CMD_RESET: return F("Reset");// MCU-->BT  Confirm the mode and check the IO port level before sending the command
     //case BK3266SR_CMD_TESTMODE: return F("Reconnect to the specified address");// 0x888888888888 MCU-->BT  For test mode
@@ -810,6 +829,7 @@ String decodeCmd(uint8_t cmd) {
     case BK3266SR_CMD_ENTER_TRANSMITTER: return F("Enter launch mode");
     case BK3266SR_CMD_ENTER_RECEIVE_MODE: return F("Enter receive mode");
     case BK3266SR_CMD_SET_BLUETOOTH_NAME: return F("Change Bluetooth name");
+    default: return "UCMD"+String(cmd,HEX);
   }
 }
 
@@ -852,4 +872,5 @@ void printHelp() {
   Serial.println(F("m: setName"));
   Serial.println(F("M: call"));
   Serial.println(F("n: connect to name"));
+  Serial.println(F("N: connect to address"));
 }
