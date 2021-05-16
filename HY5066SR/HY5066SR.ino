@@ -219,11 +219,6 @@ uint8_t trasmitSearch() {
 uint8_t trasmitDisconnect() {
   return sendOtherData(BK3266SR_CMD_TYPE_SEND_TRANSMITTER_DATA, BK3266SR_CMD_TRANSMITTER_DISCONNECT);
 }
-uint8_t trasmitConnectToName(uint8_t data[]) {
-  data[1] = BK3266SR_CMD_TYPE_SEND_TRANSMITTER_DATA;
-  data[2] = BK3266SR_CMD_TYPE_CONNECT_TO_NAME;
-  return senddata(data);
-}
 uint8_t trasmitConnectToAddress(uint8_t data[5]){
   data[1] = BK3266SR_CMD_TYPE_SEND_TO_CONNECT_ADDRESS; 
   return senddata(data);
@@ -363,30 +358,6 @@ void loop() {
           }
           Serial.println();
           call(number);
-        }
-        break;
-      case 'n': {
-          uint8_t name[32];
-          name[0] = 3; //0th=packetsize,1st=BK3266SR_CMD_TYPE_SEND_TRANSMITTER_DATA, 2nd = BK3266SR_CMD_TYPE_CONNECT_TO_NAME, 3th and up -> name
-          uint8_t g;
-          delay(500);//wait for incoming buffer to read serial data if any
-          while (Serial.available() > 0) {
-            delay(1);  //clear buffer
-            Serial.read();
-          }
-          Serial.print(F("Enter name: "));
-          while (Serial.available() == 0); //wait for user to enter data
-          delay(500);//wait for incoming buffer to read serial data if any
-          while (Serial.available()) {
-            g = Serial.read(); //read serial
-            if (g == '\n' || g == '\r') { //if it is /n /r
-              continue;//skipp
-            }
-            name[name[0]++] = g; //we will store it
-            Serial.write(g);//print back what we read
-          }
-          Serial.println();
-          trasmitConnectToName(name);
         }
         break;
       case 'N': {
@@ -702,16 +673,15 @@ uint8_t dumpdata(uint8_t data[]) {
 }
 
 uint8_t dumpHEXdata(uint8_t data[]) {
-  Serial.println("caling dumpdata--------------------------------");
   static uint8_t crc;
   crc = 0;
-  for (uint8_t i = 0; i < data[0] - 1; i++) { //count till crc
+  for (uint8_t i = 2; i < data[0] - 1; i++) { //count till crc, skip bunmber of bytes and command 0x01 = returned data
     //if (i > 1 && i < data[0]-1) 
-    Serial.print(data[i], HEX); Serial.print("|");
+    Serial.print(data[i], HEX);// Serial.print("|");
     crc += data[i];
   }
-  Serial.print(" CRC: "); Serial.println(crc, HEX);
-  Serial.println("caling dumpdata end--------------------------------");
+//  Serial.print(" CRC: "); Serial.println(crc, HEX);
+  Serial.println();
 }
 
 String decodeResponce(uint8_t RSP) {
@@ -871,6 +841,5 @@ void printHelp() {
   Serial.println(F("L: remoteAddr"));
   Serial.println(F("m: setName"));
   Serial.println(F("M: call"));
-  Serial.println(F("n: connect to name"));
   Serial.println(F("N: connect to address"));
 }
