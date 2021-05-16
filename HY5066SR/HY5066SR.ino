@@ -389,6 +389,9 @@ void loop() {
           }
           Serial.println();
           disconnect();
+          delay(500);
+          btCheckResponce();
+          delay(100);
           trasmitConnectToAddress(name);
         }
         break;
@@ -520,7 +523,7 @@ uint8_t btCheckResponce() {
                         Serial.print(F(" addr: ["));
                         for (uint8_t i = 4; i < 10; i++) {
                           Serial.print(data[i], HEX);
-                          if (i != 9) Serial.print(F(":"));
+                          //if (i != 9) Serial.print(F(":"));
                         }
                         Serial.println("]");
                       }
