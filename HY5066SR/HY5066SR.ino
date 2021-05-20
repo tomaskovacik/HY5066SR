@@ -1,7 +1,5 @@
+//not required for PB version
 //#include "SoftwareSerial.h"
-
-
-
 
 
 #define DEBUG 1
@@ -109,9 +107,15 @@
 #define BK3266SR_RESPONCE_REMOTEADDR 0x0C  //  The transmitter connects to the Bluetooth address 
 #define BK3266SR_RESPONCE_SEARCHREMOTEADDR 0x0D  //  Bluetooth address searched by the transmitter
 
+#define BK3266SR_MUSIC_NEXT_TRACK 0xD
+#define BK3266SR_MUSIC_PLAY_PAUSE 0xB
+#define BK3266SR_MUSIC_PREV_TRACK 0xE
 
+//non PB version
 //SoftwareSerial btSerial(7, 6); //rxPin, txPin, inverse_logic
-#define btSerial Serial1
+//PB version
+#define btSerial Serial1 //serial1 on 328PB(nanoPB pinout) : TX1: 11, RX1: 12
+
 enum flowstate : uint8_t {
   START_52,
   START_42,
@@ -497,15 +501,20 @@ uint8_t btCheckResponce() {
               if (DEBUG)
                 switch (data[1]) {
                   case BK3266SR_RESPONCE_ACK:
+                  Serial.println("ACK");
                     break;
                   case BK3266SR_RESPONCE_PR:
+                  Serial.println("PR");
 
                   case BK3266SR_RESPONCE_IR:
+                  Serial.println("IR");
 
                   case BK3266SR_RESPONCE_VOL:
+                  Serial.println("VOL");
                     Serial.println(data[2]);
                     break;
                   case BK3266SR_RESPONCE_TWS:
+                  Serial.println("TWS");
                     for (uint8_t i = 0; i < data[0]; i++) {
                       Serial.print(data[i], HEX); Serial.print("|");
                     }
@@ -523,9 +532,14 @@ uint8_t btCheckResponce() {
                         Serial.print(F(" addr: ["));
                         for (uint8_t i = 4; i < 10; i++) {
                           Serial.print(data[i], HEX);
-                          //if (i != 9) Serial.print(F(":"));
+                          if (i != 9) Serial.print(F(":"));
                         }
-                        Serial.println("]");
+                        Serial.print("]  ["); 
+                        //for simple copy:
+                        for (uint8_t i = 4; i < 10; i++) {
+                          Serial.print(data[i], HEX);
+                        }
+                        Serial.println("]"); 
                       }
                     }
                     break;
@@ -536,8 +550,10 @@ uint8_t btCheckResponce() {
                     Serial.println();
                     break;
                   case BK3266SR_RESPONCE_AUTADD:
+                  Serial.println("AUTADD"); 
 
                   case BK3266SR_RESPONCE_REMOTEADDR:
+                  Serial.println("REMOTEADDR"); 
 
                   case BK3266SR_RESPONCE_SEARCHREMOTEADDR:
                     for (uint8_t i = 0; i < data[0]; i++) {
@@ -546,10 +562,19 @@ uint8_t btCheckResponce() {
                     break;
                   case BK3266SR_RESPONCE_SEND:
                     {
-                      if (data[2] > 0x60 && data[2] < 0x7E)
+                     if ( data[2] == BK3266SR_MUSIC_NEXT_TRACK)
+                      Serial.println("NEXT TRACK");
+                     else if ( data[2] == BK3266SR_MUSIC_PLAY_PAUSE)
+                      Serial.println("PLAY/PAUSE"); 
+                     else if ( data[2] == BK3266SR_MUSIC_PREV_TRACK)
+                      Serial.println("PREV TRACK");
+                     else if (data[2] > 0x60 && data[2] < 0x7E)
                       Serial.println(decodeReceivedData(data[2]));
                       else
+                     {
+                      Serial.print("HEX DUMP in RESPONCE_SEND:  ");
                       dumpHEXdata(data);
+                     }
                     }
                     break;
                   case BK3266SR_RESPONCE_PHONE_NAME:
